@@ -182,6 +182,8 @@ func main() {
 	outputFile := flag.String("output", "bundle.md", "Output markdown file.")
 	projectType := flag.String("type", "auto", "Project type. Options: "+strings.Join(availableTypes, ", "))
 	reportSkipped := flag.Bool("report-skipped", false, "Report all skipped files and reasons.")
+	ignoreDirsStr := flag.String("ignore-dirs", "", "Comma-separated list of directories to ignore. Overrides the project type's default.")
+	ignoreExtsStr := flag.String("ignore-exts", "", "Comma-separated list of file extensions to ignore. Overrides the project type's default.")
 	flag.Parse()
 
 	// 2. Determine and load project configuration.
@@ -195,8 +197,25 @@ func main() {
 		log.Fatalf("Invalid project type '%s'. Available types are: %s", finalProjectType, strings.Join(availableTypes, ", "))
 	}
 
-	ignoreDirs := newStringSet(config.IgnoreDirs)
-	ignoreExts := newStringSet(config.IgnoreExts)
+	var finalIgnoreDirs []string
+	if *ignoreDirsStr != "" {
+		fmt.Println("Using custom ignore-dirs list from command-line flag.")
+		finalIgnoreDirs = strings.Split(*ignoreDirsStr, ",")
+	} else {
+		finalIgnoreDirs = config.IgnoreDirs
+	}
+
+	var finalIgnoreExts []string
+	if *ignoreExtsStr != "" {
+		fmt.Println("Using custom ignore-exts list from command-line flag.")
+		finalIgnoreExts = strings.Split(*ignoreExtsStr, ",")
+	} else {
+		finalIgnoreExts = config.IgnoreExts
+	}
+
+	ignoreDirs := newStringSet(finalIgnoreDirs)
+	ignoreExts := newStringSet(finalIgnoreExts)
+
 	langMap := mergeMaps(baseLangMap, config.LangMap)
 	skippedFiles := make(map[string][]string)
 
