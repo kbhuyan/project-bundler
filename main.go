@@ -18,9 +18,10 @@ import (
 
 // ProjectConfig defines the bundling rules for a specific project type.
 type ProjectConfig struct {
-	IgnoreDirs []string
-	IgnoreExts []string
-	LangMap    map[string]string
+	IgnoreDirs     []string
+	IgnoreExts     []string
+	IgnoreSuffixes []string
+	LangMap        map[string]string
 }
 
 // baseLangMap contains common language mappings for extensions.
@@ -62,6 +63,16 @@ var projectConfigs = map[string]ProjectConfig{
 			".xml":    "xml",
 			".gradle": "groovy",
 			".pro":    "text",
+		},
+	},
+	"flutter": {
+		IgnoreDirs:     []string{".git", ".idea", ".dart_tool", ".metadata", "build", "android", "ios", "linux", "windows", "macos", "web"},
+		IgnoreExts:     []string{".DS_Store", ".flutter-plugins-dependencies", ".iml", ".metadata", ".lock", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ttf", ".otf", ".ico", ".apk", ".aab"},
+		IgnoreSuffixes: []string{".g.dart", ".freezed.dart", ".gr.dart"}, // Ignores generated code
+		LangMap: map[string]string{
+			".dart": "dart",
+			".yaml": "yaml",
+			".arb":  "json",
 		},
 	},
 	"go": {
@@ -129,6 +140,7 @@ func detectProjectType(srcDir string) string {
 		"build.gradle":  "android",
 		"Package.swift": "ios",
 		"Podfile":       "ios",
+		"pubspec.yaml":  "flutter",
 	}
 
 	for landmark, projectType := range landmarkFiles {
@@ -212,6 +224,8 @@ func main() {
 	} else {
 		finalIgnoreExts = config.IgnoreExts
 	}
+	// Extract Suffixes
+	finalIgnoreSuffixes := config.IgnoreSuffixes
 
 	ignoreDirs := newStringSet(finalIgnoreDirs)
 	ignoreExts := newStringSet(finalIgnoreExts)
@@ -251,6 +265,14 @@ func main() {
 		if ignoreExts.Contains(ext) || ignoreExts.Contains(d.Name()) {
 			skippedFiles["Ignored Extension/File"] = append(skippedFiles["Ignored Extension/File"], path)
 			return nil
+		}
+
+		// Check Suffixes
+		for _, suffix := range finalIgnoreSuffixes {
+			if strings.HasSuffix(d.Name(), suffix) {
+				skippedFiles["Ignored Suffix"] = append(skippedFiles["Ignored Suffix"], path)
+				return nil
+			}
 		}
 
 		// IMPORTANT: Perform binary file detection to prevent corruption.
