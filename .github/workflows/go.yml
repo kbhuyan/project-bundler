@@ -36,7 +36,9 @@ jobs:
           go-version-file: 'go.mod'
           # Enable caching for Go modules and build cache for faster builds
           cache: true
-
+    
+      - name: Tidy modules
+        run: go mod tidy
       # Optional Step 3: Run Linters (Highly Recommended)
       # Uses golangci-lint, a popular Go meta-linter.
       # It aggregates many linters and runs them efficiently.
