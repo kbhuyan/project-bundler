@@ -1,4 +1,7 @@
 # Project Bundler CLI
+[![Go Report Card](https://goreportcard.com/badge/github.com/kbhuyan/cf-ddns-client)](https://goreportcard.com/report/github.com/kbhuyan/cf-ddns-client)
+[![Build Status](https://github.com/kbhuyan/cf-ddns-client/actions/workflows/go.yml/badge.svg)](https://github.com/kbhuyan/cf-ddns-client/actions/workflows/go.yml) <!-- Optional: Setup GitHub Actions for Go -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 `project-bundler` is a fast, intelligent, and flexible command-line tool written in Go that consolidates all relevant source code files from a project directory into a single, large Markdown file. This is incredibly useful for providing context to Large Language Models (LLMs), creating project archives, or generating documentation.
 

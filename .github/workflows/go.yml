@@ -1,0 +1,75 @@
+# .github/workflows/go.yml
+
+name: Go Build and Test # Name of the workflow displayed on GitHub
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ main ] # Run on pushes to the main branch
+  pull_request:
+    branches: [ main ] # Run on pull requests targeting the main branch
+
+# Defines the jobs that make up the workflow
+jobs:
+  # The "build" job definition
+  build:
+    # Specify the runner environment (OS)
+    # ubuntu-latest is a common and cost-effective choice
+    runs-on: ubuntu-latest
+
+    # Define the steps within the "build" job
+    steps:
+      # Step 1: Check out the repository's code
+      # This action checks-out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
+      - name: Check out code
+        uses: actions/checkout@v4 # Use v4 of the checkout action
+
+      # Step 2: Set up the Go environment
+      # This action sets up a Go environment for use in actions
+      - name: Set up Go
+        uses: actions/setup-go@v5 # Use v5 of the setup-go action
+        with:
+          # Specify the Go version. You can use:
+          # - A specific version like '1.21'
+          # - 'stable' for the latest stable Go version
+          # - Use go-version-file to read from go.mod (recommended)
+          go-version-file: 'go.mod'
+          # Enable caching for Go modules and build cache for faster builds
+          cache: true
+
+      # Optional Step 3: Run Linters (Highly Recommended)
+      # Uses golangci-lint, a popular Go meta-linter.
+      # It aggregates many linters and runs them efficiently.
+      - name: Run linters
+        uses: golangci/golangci-lint-action@v6 # Use v6 of the action
+        with:
+          # Optional: version of golangci-lint to use, e.g. 'v1.55.2' or 'latest'.
+          # Using 'latest' is convenient but might introduce unexpected changes.
+          # Pinning to a specific version ensures reproducibility.
+          version: latest
+          # Optional: command line arguments. Add custom flags if needed.
+          # args: --timeout=3m
+
+      # Optional Step 4: Check Go code formatting
+      # Ensures code adheres to standard 'gofmt' style.
+      - name: Check formatting
+        run: |
+          # List files that differ from gofmt's output
+          FMT_FILES=$(gofmt -l .)
+          if [ -n "$FMT_FILES" ]; then
+            echo "Go files need formatting:"
+            echo "$FMT_FILES"
+            exit 1
+          fi
+          echo "Go code is correctly formatted."
+
+      # Step 5: Build the application
+      # The '-v' flag provides verbose output. './...' builds all packages.
+      - name: Build
+        run: go build -v ./...
+
+      # Step 6: Run tests
+      # The '-v' flag provides verbose output. './...' tests all packages.
+      # The '-race' flag enables the race detector (good for finding concurrency issues).
+      - name: Test with race detector
+        run: go test -v -race ./...
