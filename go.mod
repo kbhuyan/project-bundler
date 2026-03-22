@@ -1,3 +1,3 @@
 module github.com/kbhuyan/project-bundler
 
-go 1.25
+go 1.23.4
