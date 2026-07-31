@@ -196,6 +196,8 @@ func main() {
 	reportSkipped := flag.Bool("report-skipped", false, "Report all skipped files and reasons.")
 	ignoreDirsStr := flag.String("ignore-dirs", "", "Comma-separated list of directories to ignore. Overrides the project type's default.")
 	ignoreExtsStr := flag.String("ignore-exts", "", "Comma-separated list of file extensions to ignore. Overrides the project type's default.")
+	addIgnoreDirsStr := flag.String("add-ignore-dirs", "", "Comma-separated list of directories to add to the ignore list.")
+	addIgnoreExtsStr := flag.String("add-ignore-exts", "", "Comma-separated list of file extensions to add to the ignore list.")
 	flag.Parse()
 
 	// 2. Determine and load project configuration.
@@ -211,19 +213,28 @@ func main() {
 
 	var finalIgnoreDirs []string
 	if *ignoreDirsStr != "" {
-		fmt.Println("Using custom ignore-dirs list from command-line flag.")
+		fmt.Println("Overriding default ignore-dirs with custom list from command-line flag.")
 		finalIgnoreDirs = strings.Split(*ignoreDirsStr, ",")
 	} else {
 		finalIgnoreDirs = config.IgnoreDirs
 	}
+	if *addIgnoreDirsStr != "" {
+		fmt.Println("Appending custom directories to ignore-dirs list.")
+		finalIgnoreDirs = append(finalIgnoreDirs, strings.Split(*addIgnoreDirsStr, ",")...)
+	}
 
 	var finalIgnoreExts []string
 	if *ignoreExtsStr != "" {
-		fmt.Println("Using custom ignore-exts list from command-line flag.")
+		fmt.Println("Overriding default ignore-exts with custom list from command-line flag.")
 		finalIgnoreExts = strings.Split(*ignoreExtsStr, ",")
 	} else {
 		finalIgnoreExts = config.IgnoreExts
 	}
+	if *addIgnoreExtsStr != "" {
+		fmt.Println("Appending custom extensions to ignore-exts list.")
+		finalIgnoreExts = append(finalIgnoreExts, strings.Split(*addIgnoreExtsStr, ",")...)
+	}
+
 	// Extract Suffixes
 	finalIgnoreSuffixes := config.IgnoreSuffixes
 

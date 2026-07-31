@@ -86,8 +86,10 @@ project-bundler [flags]
 | `-output`         | `string` | `bundle.md`                                                             | Name of the output markdown file.                                                                       |
 | `-type`           | `string` | `auto`                                                                  | Project type. Overrides auto-detection. Options: `auto`, `go`, `rust`, `flutter`, `ios`, `android`, `generic`. |
 | `-report-skipped` | `bool`   | `false`                                                                 | If set, prints a detailed report of all files that were skipped and the reasons why.                    |
-| `-ignore-dirs`    | `string` | *(Varies by type)*                                                       | Comma-separated list of directories to ignore. **Note:** This overrides the default for the selected type. |
-| `-ignore-exts`    | `string` | *(Varies by type)*                                                       | Comma-separated list of file extensions to ignore. **Note:** This overrides the default for the selected type. |
+| `-ignore-dirs`     | `string` | *(Varies by type)* | Comma-separated list of directories to ignore. **Note:** This *overrides* the default for the selected type. |
+| `-ignore-exts`     | `string` | *(Varies by type)* | Comma-separated list of file extensions to ignore. **Note:** This *overrides* the default for the selected type. |
+| `-add-ignore-dirs` | `string` | `""`               | Comma-separated list of directories to *add* to the ignore list (keeps defaults). |
+| `-add-ignore-exts` | `string` | `""`               | Comma-separated list of file extensions to *add* to the ignore list (keeps defaults). |
 
 ### Examples
 
@@ -126,11 +128,16 @@ Reason: Ignored Extension/File
 ✅ Successfully created project bundle at 'bundle.md'
 ```
 
-**4. Override the default ignore list:**
-This example bundles a Go project but adds `testdata` to the ignore list.
+**4. Add to the default ignore lists:**
+This example bundles a Go project and adds `testdata` and `tmp` to the ignored directories without losing the standard Go defaults (`.git`, `vendor`, `build`).
 ```sh
-# The default ignore list for Go is ".git,vendor,build"
-project-bundler -type=go -ignore-dirs=".git,vendor,build,testdata"
+project-bundler -type=go -add-ignore-dirs="testdata,tmp"
+```
+
+**5. Completely override the default ignore lists:**
+If you want to discard the safe defaults and use exactly your own list, use the override flags.
+```sh
+project-bundler -type=go -ignore-dirs=".git,my_custom_folder"
 ```
 
 ## How It Works
